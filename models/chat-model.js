@@ -9,7 +9,7 @@ const schema = new Schema(
     creator: { type: Types.ObjectId, ref: "User" },
     members: [{ type: Types.ObjectId, ref: "User" }],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const Chat = mongoose.models.Chat || model("Chat", schema);
