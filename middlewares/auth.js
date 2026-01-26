@@ -7,16 +7,31 @@ import { TALKIE_TOKEN } from "../constants/config.js";
 import { User } from "../models/user-model.js";
 
 const isAuthenticated = TryCatch(async (req, res, next) => {
-  const token = req.cookies[TALKIE_TOKEN];
-  // console.count("Auth Middleware called")
-  if (!token)
+  // Try to get token from cookies first
+  let token = req.cookies[TALKIE_TOKEN];
+  
+  // If no cookie, try Authorization header
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.slice(7); // Remove "Bearer " prefix
+    }
+  }
+
+  if (!token) {
     return next(new ErrorHandler("please login to access this route", 401));
-  // console.count("Auth Middleware called")
-  const decodeData = jwt.verify(token, process.env.JWT_SECRET);
-  console.log(decodeData);
-  req.user = decodeData._id;
-  next();
+  }
+
+  try {
+    const decodeData = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Token verified, user ID:", decodeData._id);
+    req.user = decodeData._id;
+    next();
+  } catch (error) {
+    return next(new ErrorHandler("Invalid or expired token", 401));
+  }
 });
+
 const adminOnly = (req, res, next) => {
   console.log("=== AdminOnly Middleware Check ===");
   console.log(" All Cookies:", req.cookies);
@@ -62,11 +77,21 @@ const socketAuthenticator = async (err, socket, next) => {
       return next(new Error(err.message));
     }
 
-    const authToken = socket.request.cookies[TALKIE_TOKEN];
-    console.log("Token found:", authToken ? " Yes" : " No");
+    // Try to get token from cookies first
+    let authToken = socket.request.cookies[TALKIE_TOKEN];
+
+    // If no cookie, try Authorization header from socket handshake
+    if (!authToken && socket.handshake.headers.authorization) {
+      const authHeader = socket.handshake.headers.authorization;
+      if (authHeader.startsWith("Bearer ")) {
+        authToken = authHeader.slice(7);
+      }
+    }
+
+    console.log("Token found:", authToken ? "Yes" : "No");
 
     if (!authToken) {
-      console.error(" No auth token found in cookies");
+      console.error(" No auth token found in cookies or headers");
       return next(new Error("No authentication token"));
     }
 
