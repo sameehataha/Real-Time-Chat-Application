@@ -33,6 +33,7 @@ const sendToken = (res, user, code, message) => {
     success: true,
     message,
     user,
+    token,
   });
 };
 

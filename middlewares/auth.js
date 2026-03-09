@@ -87,7 +87,9 @@ const socketAuthenticator = async (err, socket, next) => {
         authToken = authHeader.slice(7);
       }
     }
-
+if (!authToken && socket.handshake.auth?.token) {
+  authToken = socket.handshake.auth.token;
+}
     console.log("Token found:", authToken ? "Yes" : "No");
 
     if (!authToken) {

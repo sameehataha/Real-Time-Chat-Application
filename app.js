@@ -49,7 +49,10 @@ console.log(`API Key: ${process.env.CLOUDINARY_API_KEY}`);
 console.log(`API Secret: ${process.env.CLOUDINARY_API_SECRET}`);
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: corsOption });
+const io = new Server(httpServer, {
+  cors: corsOption,
+  transports: ["websocket", "polling"],
+});
 
 // Store io instance on app for use in route handlers
 app.set("io", io);

@@ -2,6 +2,7 @@ const corsOption = {
   origin: [
     "https://real-time-chat-application-frontend-ex6823h9o.vercel.app",
     "https://real-time-chat-application-frontend-h9xpu3ht9.vercel.app",
+    "https://real-time-chat-application-frontend-rho.vercel.app",
     "http://localhost:5173",
     "http://localhost:4173",
     "http://localhost:3000",
